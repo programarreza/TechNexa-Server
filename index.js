@@ -13,7 +13,7 @@ app.use(express.json());
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.t29apb8.mongodb.net/?retryWrites=true&w=majority`;
-console.log(uri);
+
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -29,7 +29,23 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
+    const categoryCollections = client.db('productDB').collection('category')
 
+    
+
+    app.post('/category', async(req, res) => {
+      const category = req.body;
+      console.log(category);
+      const result = await categoryCollections.insertOne(category)
+      res.send(result);
+
+    })
+
+    app.get('/category', async(req, res) => {
+      const cursor = categoryCollections.find()
+      const result = await cursor.toArray();
+      res.send(result)
+    })
 
 
     // Send a ping to confirm a successful connection
