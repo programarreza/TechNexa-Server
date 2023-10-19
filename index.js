@@ -11,7 +11,7 @@ app.use(express.json());
 
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.t29apb8.mongodb.net/?retryWrites=true&w=majority`;
 
 
@@ -30,9 +30,10 @@ async function run() {
     await client.connect();
 
     const categoryCollections = client.db('productDB').collection('category')
+    const productCollections = client.db('productDB').collection('products');
 
     
-
+    // category
     app.post('/category', async(req, res) => {
       const category = req.body;
       console.log(category);
@@ -47,6 +48,42 @@ async function run() {
       res.send(result)
     })
 
+
+    // product
+    app.post('/products', async(req, res) => {
+      const product = req.body;
+      console.log(product);
+      const result = await productCollections.insertOne(product);
+      res.send(result);
+    })
+
+    // reade product
+    app.get('/products', async(req, res) => {
+      const cursor = productCollections.find()
+      const result = await cursor.toArray();
+      res.send(result)
+    })
+
+
+    app.get('/products/:brand', async(req, res) => {
+      const name = req.params.brand ;
+      console.log(name);
+      const query = { brand_name: name}
+      console.log(query);
+      const cursor = productCollections.find(query)
+      const result = await cursor.toArray()
+      res.send(result)
+
+    })
+
+    // single data
+    // app.get('products/:id', async(req, res) =>{
+    //   const id = req.params.id;
+    //   console.log(id);
+    //   const query = {_id: new ObjectId(id)}
+    //   const result = await productCollections.findOne(query)
+    //   res.send(result)
+    // })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
