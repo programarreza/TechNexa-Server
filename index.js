@@ -27,17 +27,17 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const categoryCollections = client.db('productDB').collection('category')
     const newsCollections = client.db('productDB').collection('news');
+    const cartCollections = client.db('productDB').collection('cart');
     const productCollections = client.db('productDB').collection('products');
 
 
     // category
     app.post('/category', async (req, res) => {
       const category = req.body;
-      console.log(category);
       const result = await categoryCollections.insertOne(category)
       res.send(result);
 
@@ -53,7 +53,6 @@ async function run() {
     // news
     app.post('/news', async (req, res) => {
       const news = req.body;
-      console.log(news);
       const result = await newsCollections.insertOne(news);
       res.send(result)
     })
@@ -96,7 +95,7 @@ async function run() {
     // details
     app.get('/product-details/:id', async(req, res) =>{
       const id = req.params.id;
-      console.log(id);
+      // console.log(id);
       const query = {_id: new ObjectId(id)}
       const result = await productCollections.findOne(query)
       res.send(result)
@@ -135,10 +134,26 @@ async function run() {
     })
 
 
+    // cart  area
+    app.post('/cart', async(req, res) => {
+      const user = req.body;
+      console.log(user);
+      const result = await cartCollections.insertOne(user)
+      res.send(result);
+    })
+
+    // read cart data
+    app.get('/cart', async(req, res) =>{
+      const cursor = cartCollections.find()
+      const result = await cursor.toArray()
+      res.send(result)
+    })
+
+
 
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
